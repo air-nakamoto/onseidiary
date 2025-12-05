@@ -87,11 +87,6 @@ Claude API: https://console.anthropic.com/
 
 MIT
 
-## 🤝 コントリビューション
-
-Issue、PRを歓迎します！
-
----
 
 **開発者**: MM199  
 **バージョン**: 0.0.0 (Phase 1)
