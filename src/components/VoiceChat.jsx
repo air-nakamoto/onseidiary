@@ -203,7 +203,6 @@ function VoiceChat({ onComplete, onCancel }) {
                 <button
                     className={`mic-button ${isListening ? 'listening' : ''}`}
                     onClick={isListening ? stopListening : startListening}
-                    disabled={isSpeaking}
                     title={isListening ? 'タップして停止' : 'タップして話す'}
                 >
                     {isListening ? '⏹️' : '🎤'}
@@ -211,13 +210,13 @@ function VoiceChat({ onComplete, onCancel }) {
             </div>
 
             <div className="voice-controls">
-                <button onClick={handleNext} disabled={!currentAnswer.trim() || isSpeaking}>
+                <button onClick={handleNext} disabled={!currentAnswer.trim()}>
                     次へ →
                 </button>
-                <button onClick={handleSkip} disabled={isSpeaking}>
+                <button onClick={handleSkip}>
                     スキップ
                 </button>
-                <button onClick={onCancel} disabled={isSpeaking}>
+                <button onClick={onCancel}>
                     キャンセル
                 </button>
             </div>
