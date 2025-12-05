@@ -8,7 +8,8 @@
 export function speak(text) {
     return new Promise((resolve, reject) => {
         if (!('speechSynthesis' in window)) {
-            reject(new Error('Speech synthesis not supported'))
+            console.warn('Speech synthesis not supported')
+            resolve() // 非対応でもエラーにしない
             return
         }
 
@@ -21,8 +22,55 @@ export function speak(text) {
         utterance.pitch = 1.0
         utterance.volume = 1.0
 
-        utterance.onend = () => resolve()
-        utterance.onerror = (event) => reject(event)
+        // 日本語の音声を探して設定
+        const setVoice = () => {
+            const voices = window.speechSynthesis.getVoices()
+            const japaneseVoice = voices.find(v => v.lang.includes('ja'))
+            if (japaneseVoice) {
+                utterance.voice = japaneseVoice
+            }
+        }
+
+        // 音声リストが読み込まれている場合
+        if (window.speechSynthesis.getVoices().length > 0) {
+            setVoice()
+        } else {
+            // 音声リストの読み込みを待つ
+            window.speechSynthesis.onvoiceschanged = setVoice
+        }
+
+        // タイムアウト設定（10秒後に自動でresolve）
+        const timeout = setTimeout(() => {
+            console.warn('Speech timeout - resolving anyway')
+            resolve()
+        }, 10000)
+
+        utterance.onend = () => {
+            clearTimeout(timeout)
+            resolve()
+        }
+
+        utterance.onerror = (event) => {
+            clearTimeout(timeout)
+            console.warn('Speech error:', event.error)
+            resolve() // エラーでも続行可能にする
+        }
+
+        // Chrome のバグ対策：長い発話が途中で止まる問題
+        const resumeInterval = setInterval(() => {
+            if (!window.speechSynthesis.speaking) {
+                clearInterval(resumeInterval)
+            } else {
+                window.speechSynthesis.pause()
+                window.speechSynthesis.resume()
+            }
+        }, 5000)
+
+        utterance.onend = () => {
+            clearInterval(resumeInterval)
+            clearTimeout(timeout)
+            resolve()
+        }
 
         window.speechSynthesis.speak(utterance)
     })
