@@ -39,11 +39,11 @@ export function speak(text) {
             window.speechSynthesis.onvoiceschanged = setVoice
         }
 
-        // タイムアウト設定（10秒後に自動でresolve）
+        // タイムアウト設定（3秒後に自動でresolve）
         const timeout = setTimeout(() => {
             console.warn('Speech timeout - resolving anyway')
             resolve()
-        }, 10000)
+        }, 3000)
 
         utterance.onend = () => {
             clearTimeout(timeout)
